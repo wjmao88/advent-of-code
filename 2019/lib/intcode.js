@@ -10,7 +10,7 @@ function parseOpcode(opcode) {
 }
 
 module.exports.runProgram = runProgram;
-function* runProgram(programInput) {
+function* runProgram(programInput, logger = console.log) {
   const program = programInput.slice();
   let cursor = 0;
   let relativeBase = 0;
@@ -48,17 +48,18 @@ function* runProgram(programInput) {
       }
       case 3: {
         const [ dest ] = getParamsAddress(pModes, 1);
-        console.log(cursor, get(cursor), 'waiting for input');
+        logger(cursor, get(cursor), 'waiting for input');
         program[dest] = yield;
-        console.log(cursor, get(cursor), 'input received to', dest);
+        logger(cursor, get(cursor), 'input received to', dest, 'val', program[dest]);
         cursor += 2;
         break;
       }
       case 4: {
         const [ val ] = getParamsAddress(pModes, 1);
-        console.log(cursor, get(cursor), 'will output and wait', val);
-        yield get(val);
-        console.log(cursor, 'resumed');
+        const actualVal = get(val)
+        logger(cursor, get(cursor), 'will output and wait', val, 'val', actualVal);
+        yield actualVal;
+        logger(cursor, 'resumed');
         cursor += 2;
         break;
       }
