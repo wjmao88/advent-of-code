@@ -1,6 +1,6 @@
 const _ = require('lodash');
 
-module.exports.createDistanceMap = (tileMap, x0, y0, wall = '#') => {
+module.exports.createDistanceMap = (tileMap, x0, y0, canPassThrough = t => t !== '#') => {
   const distMap = { [y0]: { [x0]: 0 }};
   let bfs = [ [+x0, +y0, 0] ];
   while (bfs.length) {
@@ -15,7 +15,7 @@ module.exports.createDistanceMap = (tileMap, x0, y0, wall = '#') => {
       return (
         !distMap[y] || distMap[y][x] === void 0
       ) && (
-        tile !== wall
+        canPassThrough(tile)
       );
     })
     newChecks.forEach(([x,y,d]) => {
@@ -41,6 +41,9 @@ const leastAdjacent = (distanceMap, x0, y0) => {
 }
 
 module.exports.findPathBetween = (distanceMap, x0, y0) => {
+  if (!distanceMap[y0] || !distanceMap[y0][x0]) {
+    return null;
+  }
   let [ x, y ] = [ x0, y0 ];
   const path = [];
   while (distanceMap[y][x] !== 0) {
