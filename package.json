@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/wjmao88/advent-of-code#readme",
   "dependencies": {
+    "bigint-crypto-utils": "^2.4.2",
     "lodash": "^4.17.15"
   }
 }
