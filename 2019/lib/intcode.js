@@ -119,7 +119,7 @@ function runControlledProgram(
   onOutput,
   onHalt
 ) {
-  const runner = runProgram(programInput);
+  const runner = runProgram(programInput, () => {});
   let input;
   while(true) {
     const { value, done } = runner.next(input);
@@ -130,6 +130,47 @@ function runControlledProgram(
     } else {
       input = void 0;
       onOutput(value);
+    }
+  }
+}
+
+module.exports.runAsciiProgram = runAsciiProgram;
+function runAsciiProgram(
+  programInput,
+  onInput,
+  onOutput,
+  shouldHalt,
+) {
+  const runner = runProgram(programInput, () => {});
+  let inputBuffer = null;
+  let outputBuffer = [];
+
+  let input;
+  let counter = 0;
+  while(true) {
+    counter += 1;
+    const { value, done } = runner.next(input);
+    if (done || shouldHalt(counter)) {
+      return;
+    } else if (value === void 0) {
+      if (!inputBuffer) {
+        const inputRaw = onInput();
+        inputBuffer = inputRaw.split('').map(s => s.charCodeAt(0));
+      }  
+      if (inputBuffer.length) {
+        input = inputBuffer.shift();
+      } else {
+        input = 10;
+        inputBuffer = null;
+      }
+    } else {
+      input = void 0;
+      if (value === 10) {
+        onOutput(outputBuffer.map(a => String.fromCharCode(a)).join(''));
+        outputBuffer = [];
+      } else {
+        outputBuffer.push(value);
+      }
     }
   }
 }
